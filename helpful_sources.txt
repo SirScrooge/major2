@@ -1,0 +1,5 @@
+POST HELPFUL LINKS W/ DESCRIPTION IN THIS FILE
+
+http://www.thegeekstuff.com/2011/12/c-socket-programming/?utm_source=feedburner
+Displays a server that is runs continously and replys as a client connects to it.
+
