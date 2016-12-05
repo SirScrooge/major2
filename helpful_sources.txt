@@ -3,4 +3,6 @@ POST HELPFUL LINKS W/ DESCRIPTION IN THIS FILE
 1) http://www.thegeekstuff.com/2011/12/c-socket-programming/?utm_source=feedburner
 Displays a server that is runs continously and replys as a client connects to it.
 
-2) 
+2) http://www.tutorialspoint.com/unix_sockets/socket_server_example.htm
+Shows how one can handle multiple client connections
+
