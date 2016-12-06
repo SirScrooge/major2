@@ -14,12 +14,15 @@ void error(const char *msg)
 	exit(0);
 }
 
+void send_value(int *user_entry);
+
 int main(int argc, char *argv[])
 {
 	int sockfd, svr_portno, cli_1portno, cli_2portno, n;
 	struct sockaddr_in serv_addr;
 	struct hostent *server;
 	char buffer[256];
+	int user_entry = -1; // value user enters into client
 
 	if (argc < 6)
 	{
@@ -54,13 +57,31 @@ int main(int argc, char *argv[])
 		error("ERROR connecting");
 	}
 
-	while(1)
+	//system("ps -C cli -o %cpu"); does not work i believe
+
+	while( 1 )
 	{
-		if (/* (value == 0) || (threshold <= CPU USAGE)*/)
+		printf("Enter Client Data: ");
+
+		if (user_entry == 0)
 		{
-			close(sockfd);
+			printf("Client disconnecting...\n");
+			return 0;
 		}
+		else{
+			send_value(&user_entry);
+		}
+
+		/*if (CPU_limit == limit)
+		{
+			printf("CPU Utilization: %f. Threshold %d Exceeded.\n", limit, CPU_limit);
+		}*/
 	}
 
 	return 0;
+}
+
+void send_value(int *user_entry)
+{
+	;
 }
