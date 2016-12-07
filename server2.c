@@ -9,7 +9,9 @@
 #include <string.h>
 #include <sys/types.h>
 
-int census_update(int sock, int *total);
+int census_update(int sock);
+
+int total;
 
 int main(int argc, char *argv[])
 {
@@ -22,9 +24,10 @@ int main(int argc, char *argv[])
     char buffer[256];
     struct sockaddr_in serv_addr, cli_addr;
     int n, pid;
-    int total = 0;
+    total = 0;
   
-
+    pthread_t t[2];
+    
     if (argc < 2)
     {
         fprintf(stderr,"ERROR, no port provided\n");
@@ -53,6 +56,22 @@ int main(int argc, char *argv[])
     clilen = sizeof(cli_addr);
     printf("Waiting for client(s) connection...\n");
 
+    while(newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen))
+    {
+	if(pthread_create(&t[0], NULL, census_update, newsockfd) < 0)
+	{
+	perror("Thread failure");
+	exit(1);
+        }
+    }	
+ 
+
+
+
+	pthread_join(t, NULL);
+    
+
+/*
     while(1)
     {
         newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
@@ -82,11 +101,13 @@ int main(int argc, char *argv[])
             close(newsockfd);
         }
 
-    } // end while loop
+    } // end while loop*/
 }
 
-int census_update(int sock, int *total)
+
+int census_update(int sock)
 {
+    while(1){
     int n; int temp_entry = 0;
    
     n = read(sock, &temp_entry, sizeof(temp_entry));
@@ -97,13 +118,14 @@ int census_update(int sock, int *total)
     }
     if(temp_entry == 0)
     {
+	close(sock);
 	return 0;
     } 
-    *total = *total + ntohl(temp_entry);
-    printf("%d\n", *total);
+    total = total + ntohl(temp_entry);
+    printf("%d\n", total);
 
     int temp_total = 0;
-    temp_total = htonl(*total);
+    temp_total = htonl(total);
    
     n = write(sock, &temp_total, sizeof(temp_total));
     if (n < 0)
@@ -111,4 +133,6 @@ int census_update(int sock, int *total)
         error("ERROR writing to socket");
         exit(1);
     }
+    }
+    close(sock);
 }
