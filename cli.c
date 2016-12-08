@@ -1,12 +1,15 @@
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
+
 
 void error(const char *msg)
 {
@@ -15,15 +18,18 @@ void error(const char *msg)
 }
 
 void send_value(int *user_entry);
+long double cpu_get();
 
 int main(int argc, char *argv[])
 {
-	int sockfd, svr_portno, cli_1portno, cli_2portno, n;
+	int sockfd, svr_portno, cli_1portno, cli_2portno, n, total;
 	struct sockaddr_in serv_addr;
 	struct hostent *server;
 	char buffer[256];
-	int user_entry = -1; // value user enters into client
-
+	int user_entry; // value user enters into client
+	char *ptr;
+	long double CPU_limit = strtod(argv[5], &ptr);
+	total = 0;
 	if (argc < 6)
 	{
 	   fprintf(stderr,"Usage: (1)%s (2)rem_ipaddr (3)svr_port (4)cli_1port (5)cli_2port (6)CPU_limit\n", argv[0]);
@@ -57,25 +63,27 @@ int main(int argc, char *argv[])
 		error("ERROR connecting");
 	}
 
-	//system("ps -C cli -o %cpu"); does not work i believe
-
 	while( 1 )
 	{
-		printf("Enter Client Data: ");
-
+		printf("Current total: %d", ntohl(total));
+		printf(" Enter Client Data: ");
+		scanf("%d", &user_entry);
+		user_entry = htonl(user_entry);
 		if (user_entry == 0)
 		{
 			printf("Client disconnecting...\n");
 			return 0;
 		}
 		else{
-			send_value(&user_entry);
+			write(sockfd, &user_entry, sizeof(user_entry));
+			read(sockfd, &total, sizeof(total));
 		}
 
-		/*if (CPU_limit == limit)
+		long double limit = cpu_get();
+		if ( CPU_limit <= limit )
 		{
-			printf("CPU Utilization: %f. Threshold %d Exceeded.\n", limit, CPU_limit);
-		}*/
+			printf("CPU Utilization: %Lf. Threshold %Lf Exceeded.\n", limit, CPU_limit);
+		}
 	}
 
 	return 0;
@@ -84,4 +92,28 @@ int main(int argc, char *argv[])
 void send_value(int *user_entry)
 {
 	;
+}
+
+
+long double cpu_get()
+{
+    long double a[4], b[4], loadavg;
+    FILE *fp;
+    char dump[50];
+
+    for(;;)
+    {
+        fp = fopen("/proc/stat","r");
+        fscanf(fp,"%*s %Lf %Lf %Lf %Lf",&a[0],&a[1],&a[2],&a[3]);
+        fclose(fp);
+        sleep(1);
+
+        fp = fopen("/proc/stat","r");
+        fscanf(fp,"%*s %Lf %Lf %Lf %Lf",&b[0],&b[1],&b[2],&b[3]);
+        fclose(fp);
+
+        loadavg = ((b[0]+b[1]+b[2]) - (a[0]+a[1]+a[2])) / ((b[0]+b[1]+b[2]+b[3]) - (a[0]+a[1]+a[2]+a[3]));
+    }
+
+    return(loadavg);
 }
