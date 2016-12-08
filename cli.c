@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 
 	while( 1 )
 	{
-		printf("Current total: %d", ntohl(total));
+		printf("Current total: %d\n", ntohl(total));
 		printf(" Enter Client Data: ");
 		scanf("%d", &user_entry);
 		user_entry = htonl(user_entry);
