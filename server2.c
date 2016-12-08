@@ -12,10 +12,11 @@
 int census_update(int sock);
 
 int total;
+char hostname[128];
+
 
 int main(int argc, char *argv[])
 {
-    char hostname[128];
     gethostname(hostname, sizeof(hostname));
     printf("my hostname: %s\n", hostname);
 
@@ -65,7 +66,7 @@ int main(int argc, char *argv[])
         }
     }	
  
-
+	printf("ayo");
 
 
 	pthread_join(t, NULL);
@@ -107,9 +108,10 @@ int main(int argc, char *argv[])
 
 int census_update(int sock)
 {
+    
     while(1){
     int n; int temp_entry = 0;
-   
+ 
     n = read(sock, &temp_entry, sizeof(temp_entry));
     if (n < 0)
     {
@@ -118,7 +120,8 @@ int census_update(int sock)
     }
     if(temp_entry == 0)
     {
-	close(sock);
+	
+	printf("Client disconnected\n");
 	return 0;
     } 
     total = total + ntohl(temp_entry);
