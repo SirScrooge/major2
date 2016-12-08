@@ -1,10 +1,13 @@
 all: server client
 
-server: svrMajor2.c
-		gcc -o server svrMajor2.c -lpthread
+server: server.c
+		gcc -o server server.c -lpthread
 
-client: cliMajor2.c
-		gcc -o client cliMajor2.c
+client1: client.c
+		gcc -o client1 client.c
+		
+client2: client.c
+		gcc -o client2 client.c
 
 clean:
-		rm -rf *.o $(objects) server client
+		rm -rf *.o $(objects) server client1 client2
