@@ -1,7 +1,7 @@
 all: server client1 client2
 
 server: svrMajor2.c
-		gcc -o server svrMajor2.c
+		gcc -o server svrMajor2.c -lpthread
 
 client1: cliMajor2.c
 		gcc -o client1 cliMajor2.c
